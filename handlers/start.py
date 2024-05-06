@@ -1,9 +1,11 @@
 from aiogram import Router, types
 from aiogram.filters import Command
 
-from config import bot, ADMIN_ID
+from config import bot, ADMIN_ID, MEDIA_PATH
+from const import START_MENU_TEXT
 from database.a_db import AsyncDatabase
 from database import sql_quaries
+from keyboards.start import start_menu_keyboard_registration
 
 router = Router()
 
@@ -24,9 +26,14 @@ async def start_menu(message: types.Message,
         ),
         fetch='none'
     )
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=f'Hello {message.from_user.first_name}'
+    animation_file = types.FSInputFile(MEDIA_PATH + "bot.gif")
+    await bot.send_animation(
+        chat_id=message.from_user.id,
+        animation=animation_file,
+        caption=START_MENU_TEXT.format(
+            user=message.from_user.first_name
+        ),
+        reply_markup=await start_menu_keyboard_registration()
     )
 
 
@@ -40,13 +47,13 @@ async def admin_start_menu(message: types.Message,
             chat_id=message.from_user.id,
             text="Here is your Admin page"
         )
-        for user in users:
-            await bot.send_message(
-                chat_id=message.from_user.id,
-                text=f"{user['FIRST_NAME']}:{user['TELEGRAM_ID']}"
+        await bot.send_message(
+            chat_id=message.from_user.id,
+            text=f"{users}"
             )
     else:
         await bot.send_message(
             chat_id=message.from_user.id,
             text="You have not access!!"
         )
+# HackerRang
