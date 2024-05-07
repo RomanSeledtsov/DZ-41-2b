@@ -36,5 +36,5 @@ INSERT_PROFILE_QUERY = """
 INSERT INTO profiles VALUES(?,?,?,?,?,?,?)
 """
 SELECT_PROFILE = """
-SELECT * FROM profiles
+SELECT * FROM profiles WHERE TELEGRAM_ID=?
 """
