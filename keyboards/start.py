@@ -11,7 +11,7 @@ async def start_menu_keyboard_registration():
     )
     profile_button = InlineKeyboardButton(
         text="My profile",
-        callback_data="profile"
+        callback_data="view_profile"
     )
     markup = InlineKeyboardMarkup(
         inline_keyboard=[
