@@ -107,9 +107,10 @@ async def process_photo(message: types.Message,
                 message.from_user.id,
                 data['nickname'],
                 data['bio'],
+                'media/' + file_path,
                 data['gender'],
                 data['birth_day'],
-                'media/' + file_path
+
 
             ),
             fetch='none'
@@ -149,6 +150,7 @@ async def view_profile(call: types.CallbackQuery,
     if user_profile:
         user = user_profile[0]
         photo = FSInputFile(user['PHOTO'])
+        print(user["PHOTO"])
         await bot.send_photo(
             chat_id=user_id,
             photo=photo,
