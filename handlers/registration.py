@@ -24,11 +24,21 @@ class RegistrationStates(StatesGroup):
 
 
 @router.callback_query(lambda call: call.data == "registration")
-async def registration_call(call: types.CallbackQuery,
-                            state: FSMContext):
+async def registration_start(call: types.CallbackQuery,
+                             state: FSMContext):
     await bot.send_message(
         chat_id=call.from_user.id,
-        text="Send me your nickname pls!"
+        text="First time ? 😏 Enter your nickname"
+    )
+    await state.set_state(RegistrationStates.nickname)
+
+
+@router.callback_query(lambda call: call.data == "update_profile")
+async def reregistration(call: types.CallbackQuery,
+                         state: FSMContext):
+    await bot.send_message(
+        chat_id=call.from_user.id,
+        text="Send me your nickname again 🤖"
     )
     await state.set_state(RegistrationStates.nickname)
 
@@ -39,11 +49,10 @@ async def process_nickname(message: types.Message,
     await state.update_data(nickname=message.text)
     await bot.send_message(
         chat_id=message.from_user.id,
-        text="Tell me about urself"
+        text="Tell me about your hobby 👀"
     )
-    data = await state.get_data()
-    print(data)
-    await state.set_state(RegistrationStates.nickname)
+
+    await state.set_state(RegistrationStates.bio)
 
 
 @router.message(RegistrationStates.bio)
@@ -52,65 +61,19 @@ async def process_bio(message: types.Message,
     await state.update_data(bio=message.text)
     await bot.send_message(
         chat_id=message.from_user.id,
-        text="Let me look at u, Send me ur Photo"
+        text="Your birth day? 👶"
     )
-    data = await state.get_data()
-    print(data)
-    await state.set_state(RegistrationStates.photo)
+    await state.set_state(RegistrationStates.birth_day)
 
 
-@router.message(RegistrationStates.photo)
-async def process_photo(message: types.Message,
-                        state: FSMContext,
-                        db=AsyncDatabase()):
-    file_id = message.photo[-1].file_id
-    print(message.photo)
-    file = await bot.get_file(file_id)
-    file_path = file.file_path
-    media_final_path = 'media/' + file_path
-    await bot.download_file(
-        file_path,
-        'media/' + file_path
-    )
-    data = await state.get_data()
-
-    photo = FSInputFile('media/' + file_path)
-    try:
-        await db.execute_query(
-            query=sql_quaries.INSERT_PROFILE_QUERY,
-            params=(
-                None,
-                message.from_user.id,
-                data['nickname'],
-                data['bio'],
-                data['gender'],
-                data['birth_day'],
-                'media/' + file_path
-
-            ),
-            fetch='none'
-        )
-    except sqlite3.IntegrityError:
-        await bot.send_message(
-            chat_id=message.from_user.id,
-            text="U have registered before 👍🏻"
-        )
-        return
-
-    await bot.send_photo(
-        chat_id=message.from_user.id,
-        photo=photo,
-        caption=PROFILE_TEXT.format(
-            nickname=data['nickname'],
-            bio=data['bio'],
-            gender=data['gender'],
-            birth_day=data['birth_day']
-        )
-    )
+@router.message(RegistrationStates.birth_day)
+async def process_birth(message: types.Message, state: FSMContext):
+    await state.update_data(birth_day=message.text)
     await bot.send_message(
         chat_id=message.from_user.id,
-        text="U have registered successfully 🍾🎉"
+        text='What is your gender (male 👨‍🦰 female 👩‍🦰)'
     )
+    await state.set_state(RegistrationStates.gender)
 
 
 @router.message(RegistrationStates.gender)
@@ -122,43 +85,73 @@ async def process_gender(message: types.Message,
             chat_id=message.from_user.id,
             text="Invalid input. Please choose one of the following: Male, Female, Other."
         )
-        return
-    await state.update_data(gender=gender)
-    await bot.send_message(
-        chat_id=message.from_user.id,
-        text="Great! Now, could you please share your birthday ? (format: YYYY-MM-DD)"
-    )
-    await RegistrationStates.birth_day.set()
-
-
-@router.message(RegistrationStates.birth_day)
-async def process_birthday(message: types.Message,
-                           state: FSMContext):
-    birth_day = message.text.strip()
-    await state.update_data(birth_date=birth_day)
-    await bot.send_message(
-        chat_id=message.from_user.id,
-        text="Thank you!"
-    )
-    await RegistrationStates.photo.set()
-
-
-@router.callback_query(lambda call: call.data == "view_profile")
-async def view_profile(call: types.CallbackQuery,
-                       db=AsyncDatabase()):
-    user_id = call.from_user.id
-    user_profile = await db.execute_query(
-        query=sql_quaries.SELECT_PROFILE,
-        params=(user_id,),
-        fetch="one"
-    )
-    if user_profile:
+    else:
+        await state.update_data(gender=gender)
         await bot.send_message(
-            chat_id=call.from_user.id,
-            text=PROFILE_TEXT
+            chat_id=message.from_user.id,
+            text="Great! Now, could you send ur photo"
+        )
+        await state.set_state(RegistrationStates.photo)
+
+
+@router.message(RegistrationStates.photo)
+async def process_photo(message: types.Message,
+                        state: FSMContext,
+                        db=AsyncDatabase()):
+    file_id = message.photo[-1].file_id
+    file = await bot.get_file(file_id)
+    file_path = file.file_path
+    media_final_path = 'media/' + file_path
+    await bot.download_file(
+        file_path,
+        'media/' + file_path
+    )
+    data = await state.get_data()
+
+    photo = FSInputFile('media/' + file_path)
+    profile = await db.execute_query(
+        query=sql_quaries.SELECT_PROFILE_QUERY,
+        params=(
+            message.from_user.id,
+        ),
+        fetch='one'
+    )
+    if profile:
+        await db.execute_query(
+            query=sql_quaries.UPDATE_PROFILE_QUERY,
+            params=(
+                data['nickname'],
+                data['bio'],
+                data['birth_day'],
+                data['gender'],
+                'media/' + file_path,
+                message.from_user.id,
+            ),
+            fetch='none'
+        )
+        await bot.send_message(
+            chat_id=message.from_user.id,
+            text="U have re-registered successfully 🍾🎉"
         )
     else:
-        await bot.send_message(
-            chat_id=call.from_user.id,
-            text="Your profile is not found. Please try again."
+
+        await db.execute_query(
+            query=sql_quaries.INSERT_PROFILE_QUERY,
+            params=(
+                None,
+                message.from_user.id,
+                data['nickname'],
+                data['bio'],
+                data['birth_day'],
+                data['gender'],
+                'media/' + file_path,
+
+            ),
+            fetch='none'
         )
+        await bot.send_message(
+            chat_id=message.from_user.id,
+            text="U have registered successfully 🍾🎉"
+        )
+
+

@@ -40,7 +40,6 @@ async def start_menu(message: types.Message,
 @router.message(lambda message: message.text == "Admin99")
 async def admin_start_menu(message: types.Message,
                            db=AsyncDatabase()):
-    print(ADMIN_ID)
     if int(ADMIN_ID) == message.from_user.id:
         users = await db.execute_query(query=sql_quaries.SELECT_USERS, fetch="all")
         await bot.send_message(
