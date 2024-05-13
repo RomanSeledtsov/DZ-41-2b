@@ -1,3 +1,5 @@
+import sqlite3
+
 import aiosqlite
 from database import sql_quaries
 
@@ -11,6 +13,13 @@ class AsyncDatabase:
             await db.execute(sql_quaries.CREATE_USER_TABLE_QUERY)
             await db.execute(sql_quaries.CREATE_PROFILE_TABLE_QUERY)
             await db.execute(sql_quaries.CREATE_LIKE_DISLIKE_TABLE_QUERY)
+            await db.execute(sql_quaries.CREATE_TABLE_REFERENCE_QUERY)
+            try:
+                await db.execute(sql_quaries.ALTER_TABLE_USER_QUERY_V1)
+                await db.execute(sql_quaries.ALTER_TABLE_USER_QUERY_V2)
+            except sqlite3.OperationalError:
+                pass
+
             await db.commit()
             print("Database connected successfully")
 

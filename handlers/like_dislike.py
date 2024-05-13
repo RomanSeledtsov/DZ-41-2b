@@ -55,7 +55,7 @@ async def random_profiles_call(call: types.CallbackQuery,
         return
 
 
-@router.callback_query(lambda call: call.data.startswith("like_"))
+@router.callback_query(lambda call: "like_" in call.data)
 async def like_dislike_call(call: types.CallbackQuery,
                             db=AsyncDatabase()):
     await call.message.delete()
@@ -76,13 +76,13 @@ async def like_dislike_call(call: types.CallbackQuery,
     await random_profiles_call(call=call)
 
 
-@router.callback_query(lambda call: call.data.startswith("dislike_"))
+@router.callback_query(lambda call: "dislike" in call.data)
 async def like_dislike_call(call: types.CallbackQuery,
                             db=AsyncDatabase()):
     await call.message.delete()
     # print(call.data.replace("like_", ""))
     # print(call.data[5:])
-    owner_tg_id = re.sub("dislike_", "", call.data)
+    owner_tg_id = re.sub("dislike", "", call.data)
 
     await db.execute_query(
         query=sql_quaries.INSERT_LIKE_QUERY,

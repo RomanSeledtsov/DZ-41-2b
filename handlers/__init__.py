@@ -8,6 +8,7 @@ def setup_routers() -> Router:
         like_dislike,
         profile,
         delete,
+        Reference,
     )
 
     router = Router()
@@ -16,5 +17,6 @@ def setup_routers() -> Router:
     router.include_router(like_dislike.router)
     router.include_router(profile.router)
     router.include_router(delete.router)
+    router.include_router(Reference.router)
 
     return router

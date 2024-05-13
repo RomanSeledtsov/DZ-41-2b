@@ -28,16 +28,21 @@ async def profiles_call(call: types.CallbackQuery,
         fetch='one'
     )
     print(profile)
-    photo = types.FSInputFile(profile["PHOTO"])
-    await bot.send_photo(
-        chat_id=call.from_user.id,
-        photo=photo,
-        caption=PROFILE_TEXT.format(
-            nickname=profile['NICKNAME'],
-            bio=profile['BIO'],
-            birth_day=profile['BIRTH_DAY'],
-            gender=profile['GENDER'],
-
-        ),
-        reply_markup=await my_profile_keyboard()
-    )
+    if profile:
+        photo = types.FSInputFile(profile["PHOTO"])
+        await bot.send_photo(
+            chat_id=call.from_user.id,
+            photo=photo,
+            caption=PROFILE_TEXT.format(
+                nickname=profile['NICKNAME'],
+                bio=profile['BIO'],
+                gender=profile['GENDER'],
+                birth_day=profile['BIRTH_DAY']
+            ),
+            reply_markup=await my_profile_keyboard()
+        )
+    else:
+        await bot.send_message(
+            chat_id=call.from_user.id,
+            text="U have not registered ‼️"
+        )
