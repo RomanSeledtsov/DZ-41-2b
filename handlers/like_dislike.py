@@ -48,10 +48,10 @@ async def random_profiles_call(call: types.CallbackQuery,
             reply_markup=await like_dislike_keyboard(tg_id=random_profile['TELEGRAM_ID'])
         )
     else:
-        # await bot.send_message(
-        #     chat_id=call.from_user.id,
-        #     text='You\'ve liked all profiles come back later!'
-        # )
+        await bot.send_message(
+            chat_id=call.from_user.id,
+            text='You\'ve liked all profiles come back later!'
+        )
         return
 
 

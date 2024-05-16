@@ -21,12 +21,27 @@ async def start_menu_keyboard_registration():
         text="Reference menu 👨‍💼",
         callback_data="reference_menu"
     )
+    like_history_button = InlineKeyboardButton(
+        text="Liked Profiles ❤️",
+        callback_data="history"
+    )
+    wallet_button = InlineKeyboardButton(
+        text="Wallet 💰",
+        callback_data="wallet_",
+    )
+    ur_money_button = InlineKeyboardButton(
+        text="Send Money 🤝",
+        callback_data="money_",
+    )
     markup = InlineKeyboardMarkup(
         inline_keyboard=[
             [registration_button],
             [my_profile_button],
             [profile_button],
             [reference_button],
+            [like_history_button],
+            [wallet_button],
+            [ur_money_button],
         ]
     )
     return markup
