@@ -33,6 +33,10 @@ async def start_menu_keyboard_registration():
         text="Send Money 🤝",
         callback_data="money_",
     )
+    grammar_button = InlineKeyboardButton(
+        text="Grammar lessons",
+        callback_data="grammar",
+    )
     markup = InlineKeyboardMarkup(
         inline_keyboard=[
             [registration_button],
@@ -42,6 +46,7 @@ async def start_menu_keyboard_registration():
             [like_history_button],
             [wallet_button],
             [ur_money_button],
+            [grammar_button],
         ]
     )
     return markup

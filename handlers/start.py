@@ -9,6 +9,7 @@ from const import START_MENU_TEXT
 from database.a_db import AsyncDatabase
 from database import sql_quaries
 from keyboards.start import start_menu_keyboard_registration
+from scraper.news_scraper import GrammarScraper
 
 router = Router()
 
@@ -108,4 +109,16 @@ async def admin_start_menu(message: types.Message,
         await bot.send_message(
             chat_id=message.from_user.id,
             text="You have not access!!"
+        )
+
+
+@router.callback_query(lambda call: call.data == "grammar")
+async def grammar_lessons_links(call: types.CallbackQuery,
+                                db=AsyncDatabase()):
+    scraper = GrammarScraper()
+    data = scraper.scrape_data()
+    for grammar in data:
+        await bot.send_message(
+            chat_id=call.message.chat.id,
+            text=grammar
         )
