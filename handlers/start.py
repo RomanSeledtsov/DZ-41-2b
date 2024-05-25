@@ -112,13 +112,13 @@ async def admin_start_menu(message: types.Message,
         )
 
 
-@router.callback_query(lambda call: call.data == "grammar")
-async def grammar_lessons_links(call: types.CallbackQuery,
-                                db=AsyncDatabase()):
-    scraper = GrammarScraper()
-    data = scraper.scrape_data()
-    for grammar in data:
-        await bot.send_message(
-            chat_id=call.message.chat.id,
-            text=grammar
-        )
+# @router.callback_query(lambda call: call.data == "grammar")
+# async def grammar_lessons_links(call: types.CallbackQuery,
+#                                 db=AsyncDatabase()):
+#     scraper = GrammarScraper()
+#     data = scraper.scrape_data()
+#     for grammar in data:
+#         await bot.send_message(
+#             chat_id=call.message.chat.id,
+#             text=grammar
+#         )
