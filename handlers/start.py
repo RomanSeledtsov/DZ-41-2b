@@ -9,7 +9,7 @@ from const import START_MENU_TEXT
 from database.a_db import AsyncDatabase
 from database import sql_quaries
 from keyboards.start import start_menu_keyboard_registration
-from scraper.news_scraper import GrammarScraper
+# from scraper.news_scraper import GrammarScraper
 
 router = Router()
 
